@@ -1,0 +1,30 @@
+# Xcode
+DerivedData/
+build/
+*.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
+*.xcuserdatad/
+*.xcuserdata/
+*.xcuserstate
+*.xcbkptlist
+*.xcscmblueprint
+*.xccheckout
+*.xcresult
+
+# SwiftPM
+.build/
+.swiftpm/
+
+# Dependencies
+Carthage/Build/
+Pods/
+
+# Artifacts
+*.dSYM
+*.dSYM.zip
+*.dSYM.tar.gz
+*.ipa
+*.hmap
+
+# macOS
+.DS_Store
