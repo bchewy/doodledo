@@ -1,4 +1,10 @@
 import Foundation
+import os
+
+private let openAILogger = Logger(
+    subsystem: Bundle.main.bundleIdentifier ?? "doodledo",
+    category: "OpenAIImageService"
+)
 
 struct OpenAIImageService {
     let apiKey: String
@@ -9,7 +15,7 @@ struct OpenAIImageService {
         self.session = session
     }
 
-    func editImage(imageData: Data, maskData: Data?, prompt: String) async throws -> Data {
+    func editImage(imageData: Data, maskData: Data?, prompt: String, size: String = "auto") async throws -> Data {
         guard let url = URL(string: "https://api.openai.com/v1/images/edits") else {
             throw OpenAIImageServiceError.invalidRequest
         }
@@ -24,7 +30,7 @@ struct OpenAIImageService {
         var body = Data()
         body.appendFormField(named: "model", value: "gpt-image-1.5", boundary: boundary)
         body.appendFormField(named: "prompt", value: prompt, boundary: boundary)
-        body.appendFormField(named: "size", value: "auto", boundary: boundary)
+        body.appendFormField(named: "size", value: size, boundary: boundary)
         body.appendFormField(named: "quality", value: "auto", boundary: boundary)
         body.appendFormField(named: "output_format", value: "png", boundary: boundary)
         body.appendFileField(
@@ -46,17 +52,28 @@ struct OpenAIImageService {
         body.appendString("--\(boundary)--\r\n")
         request.httpBody = body
 
+        openAILogger.info(
+            "Image edit request starting. imageBytes=\(imageData.count), maskBytes=\(maskData?.count ?? 0), promptLength=\(prompt.count), size=\(size)"
+        )
+
         let (data, response) = try await session.data(for: request)
         guard let httpResponse = response as? HTTPURLResponse else {
             throw OpenAIImageServiceError.invalidResponse
         }
 
+        let requestID = httpResponse.value(forHTTPHeaderField: "x-request-id") ?? "n/a"
         guard (200..<300).contains(httpResponse.statusCode) else {
+            let bodyString = String(data: data, encoding: .utf8)
+            openAILogger.error(
+                "Image edit failed. status=\(httpResponse.statusCode) requestId=\(requestID) body=\(bodyString ?? "n/a")"
+            )
             if let errorResponse = try? JSONDecoder().decode(OpenAIErrorResponse.self, from: data) {
                 throw OpenAIImageServiceError.apiError(errorResponse.error.message)
             }
             throw OpenAIImageServiceError.httpError(httpResponse.statusCode)
         }
+
+        openAILogger.info("Image edit succeeded. status=\(httpResponse.statusCode) requestId=\(requestID)")
 
         let imagesResponse = try JSONDecoder().decode(ImagesResponse.self, from: data)
         guard let imageBase64 = imagesResponse.data.first?.b64_json,

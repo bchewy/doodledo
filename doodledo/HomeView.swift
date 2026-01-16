@@ -4,8 +4,8 @@ import UIKit
 private let girlyAccentLight = Color(red: 0.96, green: 0.35, blue: 0.69)
 private let girlyAccentDark = Color(red: 0.98, green: 0.46, blue: 0.78)
 
-private let girlySurfaceColorLight = Color(red: 1.0, green: 0.94, blue: 0.97)
-private let girlySurfaceHighlightLight = Color(red: 1.0, green: 0.97, blue: 0.99)
+private let girlySurfaceColorLight = Color(red: 1.0, green: 0.88, blue: 0.94)
+private let girlySurfaceHighlightLight = Color(red: 1.0, green: 0.94, blue: 0.98)
 private let girlySurfaceGradientLight = LinearGradient(
     colors: [girlySurfaceHighlightLight, girlySurfaceColorLight],
     startPoint: .topLeading,
@@ -21,7 +21,7 @@ private let girlySurfaceGradientDark = LinearGradient(
 )
 
 private let girlyBackgroundGradientLight = LinearGradient(
-    colors: [Color(red: 1.0, green: 0.97, blue: 1.0), Color(red: 1.0, green: 0.92, blue: 0.97)],
+    colors: [Color(red: 1.0, green: 0.92, blue: 0.97), Color(red: 0.99, green: 0.84, blue: 0.92)],
     startPoint: .topLeading,
     endPoint: .bottomTrailing
 )
@@ -70,7 +70,7 @@ struct HomeView: View {
 
     var body: some View {
         NavigationStack(path: $path) {
-            ZStack {
+            ZStack(alignment: .top) {
                 backgroundView
 
                 ScrollView {
@@ -102,6 +102,7 @@ struct HomeView: View {
                 }
             }
             .navigationTitle("Doodles")
+            .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(.visible, for: .navigationBar)
             .toolbarBackground(Color(.systemBackground), for: .navigationBar)
             .toolbar {
